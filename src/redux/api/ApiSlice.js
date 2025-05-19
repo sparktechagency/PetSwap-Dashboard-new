@@ -15,7 +15,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Post", "deleteProduct", "updateProductStatus"],
+  tagTypes: ["Post", "deleteProduct", "updateProductStatus", "Category"],
 
   endpoints: (builder) => ({
     // login endpoint
@@ -261,13 +261,20 @@ export const apiSlice = createApi({
 
     // anser help request
     answerHelpRequest: builder.mutation({
-      query: ({data, id}) => {
+      query: ({ data, id }) => {
         return {
           url: `/help-center/${id}`,
           method: "POST",
           body: data,
         };
       },
+    }),
+
+    //get categories
+
+    getCategory: builder.query({
+      query: () => "/categories",
+      providesTags: ["Category"],
     }),
 
     // create category
@@ -279,9 +286,34 @@ export const apiSlice = createApi({
           body: data,
           headers: {
             "Content-Type": "multipart/form-data",
-          }
+          },
         };
       },
+      invalidatesTags: ["Category"],
+    }),
+
+    // create category
+    updateCategory: builder.mutation({
+      query: (id, data) => {
+        return {
+          url: `/categories/${id}`,
+          method: "POST",
+          body: data,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+      },
+      invalidatesTags: ["Category"],
+    }),
+
+    //delete category
+    deleteCategory: builder.mutation({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Category"],
     }),
   }),
 });
@@ -310,5 +342,9 @@ export const {
   useDeleteFaqMutation,
   useGetSettingsQuery,
   useHelpRequestQuery,
-  useAnswerHelpRequestMutation
+  useAnswerHelpRequestMutation,
+  useGetCategoryQuery,
+  useAddCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
 } = apiSlice;

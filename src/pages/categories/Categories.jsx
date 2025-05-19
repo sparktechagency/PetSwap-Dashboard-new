@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import cateIcon from "../../assets/images/cateIcon.png";
-import { IconEdit, IconTrash } from "../../assets/icons/Icons";
-import { Upload, Button, Image, Space, message, Modal } from "antd";
-import Icon, { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { IconEdit } from "../../assets/icons/Icons";
+import { Upload, Button, Image, message, Modal } from "antd";
+import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 
 function Categories() {
   const [openAddCategoryModal, setOpenAddCategoryModal] = useState(false);
@@ -15,6 +14,37 @@ function Categories() {
   const [editSubCategoryName, setEditSubCategoryName] = useState("");
   const [confirmationModalVisible, setConfirmationModalVisible] =
     useState(false);
+  const [editable, setEditable] = useState(false);
+  const [targetCat, setTargetCat] = useState(-1);
+  const [deleteId, setDeleteId] = useState(-1);
+
+  const token = localStorage.getItem("authToken");
+  async function getData() {
+    const call = await fetch("http://182.252.68.227:8001/api/category", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await call.json();
+
+    if (res.data) {
+      setCategories(res.data);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    if (targetCat !== null && targetCat !== undefined && editable) {
+      console.log(targetCat);
+      setCategoryName(categories[targetCat].name);
+      setSubCategories(categories[targetCat].subcategories);
+    }
+  }, [categories, editable, targetCat]);
+
   // Custom request to handle file upload
   const customRequest = ({ file, onSuccess }) => {
     const reader = new FileReader();
@@ -73,34 +103,125 @@ function Categories() {
   };
 
   // Submit the new category
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (categoryName.trim() === "") {
       message.error("Category name cannot be empty.");
       return;
     }
 
-    const newCategory = {
-      id: Date.now(),
-      name: categoryName,
-      subCategories: subCategories,
-      icon: imageUrl,
-    };
+    // Create FormData for both add and update operations
+    const formData = new FormData();
+    formData.append("name", categoryName);
 
-    setCategories([...categories, newCategory]); // Add to categories list
-    setCategoryName(""); // Reset category name
-    setSubCategories([]); // Reset subcategories
-    setImageUrl(null); // Reset image
-    setOpenAddCategoryModal(false); // Close modal
-    message.success("Category added successfully!");
+    // Add subcategories as individual form fields with array indices
+    subCategories.forEach((subCategory, index) => {
+      formData.append(`subcategories[${index}]`, subCategory.name);
+    });
+
+    // Convert base64 to file if imageUrl exists
+    if (imageUrl && imageUrl.startsWith("data:")) {
+      // Extract the base64 data from the data URL
+      const base64Data = imageUrl.split(",")[1];
+      // Convert base64 to blob
+      const byteCharacters = atob(base64Data);
+      const byteArrays = [];
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays.push(byteCharacters.charCodeAt(i));
+      }
+
+      const blob = new Blob([new Uint8Array(byteArrays)], {
+        type: "image/png",
+      });
+      const file = new File([blob], "category-icon.png", { type: "image/png" });
+
+      // Append the file to FormData
+      formData.append("icon", file);
+    }
+
+    if (editable) {
+      // For update, add the _method field
+      formData.append("_method", "PUT");
+
+      const call = await fetch(
+        `http://182.252.68.227:8001/api/category/${categories[targetCat].id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Don't set Content-Type for FormData
+          },
+          body: formData,
+        }
+      );
+
+      const res = await call.json();
+
+      if (!res.status) {
+        message.error(res.message);
+        return;
+      }
+
+      console.log(res);
+      message.success("Category updated successfully!");
+      getData(); // Refresh the data
+      setOpenAddCategoryModal(false);
+    } else {
+      const call = await fetch(`http://182.252.68.227:8001/api/category`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Don't set Content-Type for FormData
+        },
+        body: formData,
+      });
+
+      const res = await call.json();
+
+      if (!res.status) {
+        message.error(res.message);
+        return;
+      }
+
+      setOpenAddCategoryModal(false); // Close modal
+      message.success("Category added successfully!");
+      getData(); // Refresh the data
+    }
+
+    // Reset form
+    setImageUrl(null);
+    setCategoryName("");
+    setSubCategories([]);
+    setEditable(false);
   };
 
   // Remove a category
-  const handleRemoveCategory = (id) => {
-    const updatedCategories = categories.filter(
-      (category) => category.id !== id
-    );
-    setCategories(updatedCategories);
-    message.success("Category removed successfully.");
+  const handleRemoveCategory = async () => {
+    // const updatedCategories = categories.filter(
+    //   (category) => category.id !== id
+    // );
+    // setCategories(updatedCategories);
+    // alert(id);
+
+    try {
+      const call = await fetch(
+        `http://182.252.68.227:8001/api/category/${deleteId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const res = await call.json();
+      console.log(res);
+
+      getData();
+      setConfirmationModalVisible(false);
+      message.success("Category removed successfully.");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -118,7 +239,7 @@ function Categories() {
 
       {/* Categories Body */}
       <div className="flex flex-col mt-2 gap-y-3">
-        {categories.map((category) => (
+        {categories?.map((category, i) => (
           <div
             className="border border-primary rounded-2xl p-2 flex flex-row items-center justify-between"
             key={category.id}
@@ -127,7 +248,7 @@ function Categories() {
               <div className="flex flex-row items-center gap-2">
                 {category.icon && (
                   <img
-                    src={category.icon}
+                    src={category.icon || "/placeholder.svg"}
                     alt="Icon"
                     className="w-8 h-8 rounded-full"
                   />
@@ -139,7 +260,7 @@ function Categories() {
 
               {/* Subcategories */}
               <div className="mt-2 flex flex-row items-center gap-2 flex-wrap">
-                {category.subCategories.map((subCategory) => (
+                {category.subcategories.map((subCategory) => (
                   <div
                     className="bg-[#E6ECEC] p-2 rounded-2xl flex flex-row items-center gap-3"
                     key={subCategory.id}
@@ -163,9 +284,20 @@ function Categories() {
             </div>
 
             <div className="flex flex-row items-center gap-4">
-              <div className="cursor-pointer" onClick={() => setOpenAddCategoryModal(true)} dangerouslySetInnerHTML={{ __html: IconEdit }} />
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  setEditable(true);
+                  setTargetCat(i);
+                  setOpenAddCategoryModal(true);
+                }}
+                dangerouslySetInnerHTML={{ __html: IconEdit }}
+              />
               <button
-                onClick={() => setConfirmationModalVisible(true)}
+                onClick={() => {
+                  setDeleteId(category.id);
+                  setConfirmationModalVisible(true);
+                }}
                 className="text-red-500"
               >
                 <DeleteOutlined />
@@ -205,7 +337,12 @@ function Categories() {
 
         <button
           className="text-white text-base font-semibold bg-primary w-full py-3 rounded-xl mt-4"
-          onClick={() => setOpenAddCategoryModal(true)}
+          onClick={() => {
+            setEditable(false);
+            setCategoryName("");
+            setSubCategories([]);
+            setOpenAddCategoryModal(true);
+          }}
         >
           Add a new category
         </button>
@@ -219,7 +356,7 @@ function Categories() {
       >
         <div>
           <h1 className="text-black text-2xl font-semibold font-work">
-            Add a new category
+            {editable ? "Edit" : "Add a new"} category
           </h1>
           <div className="mt-4 flex flex-col items-center mb-3">
             <Upload
@@ -230,7 +367,7 @@ function Categories() {
               {imageUrl && (
                 <div className="relative">
                   <Image
-                    src={imageUrl}
+                    src={imageUrl || "/placeholder.svg"}
                     alt="Selected"
                     style={{
                       width: 120,
@@ -305,7 +442,7 @@ function Categories() {
               className="text-white text-base font-semibold bg-primary w-full py-3 rounded-xl mt-4"
               onClick={handleAddCategory}
             >
-              Add a new category
+              {editable ? "Update" : "Add a new"} category
             </button>
           </div>
         </div>
