@@ -17,7 +17,7 @@ function Categories() {
   const [editable, setEditable] = useState(false);
   const [targetCat, setTargetCat] = useState(-1);
   const [deleteId, setDeleteId] = useState(-1);
-
+  const [selectedSub, setSelectedSub] = useState(null);
   const token = localStorage.getItem("authToken");
   async function getData() {
     const call = await fetch("http://182.252.68.227:8001/api/category", {
@@ -44,6 +44,10 @@ function Categories() {
       setSubCategories(categories[targetCat].subcategories);
     }
   }, [categories, editable, targetCat]);
+
+  useEffect(() => {
+    setEditSubCategoryName(selectedSub?.name);
+  }, [selectedSub]);
 
   // Custom request to handle file upload
   const customRequest = ({ file, onSuccess }) => {
@@ -81,17 +85,26 @@ function Categories() {
   };
 
   // Save edited subcategory
-  const handleSaveEditSubCategory = () => {
-    const updatedSubCategories = subCategories.map((subCategory) =>
-      subCategory.id === editSubCategory.id
-        ? { ...subCategory, name: editSubCategoryName } // Update only the name
-        : subCategory
-    );
-
-    setSubCategories(updatedSubCategories);
-    setEditSubCategory(null); // Close modal
-    setEditSubCategoryName("");
-    message.success("Subcategory updated successfully!");
+  const handleSaveEditSubCategory = async () => {
+    try {
+      const call = await fetch(
+        `http://182.252.68.227:8001/api/subcategory/${selectedSub?.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ _method: "PUT", name: editSubCategoryName }),
+        }
+      );
+      setEditSubCategory(null);
+      setEditSubCategoryName("");
+      message.success("Subcategory updated successfully!");
+      getData();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Remove a subcategory
@@ -270,7 +283,10 @@ function Categories() {
                     </span>
                     <div
                       dangerouslySetInnerHTML={{ __html: IconEdit }}
-                      onClick={() => handleEditSubCategory(subCategory.id)}
+                      onClick={() => {
+                        setSelectedSub(subCategory);
+                        handleEditSubCategory(subCategory.id);
+                      }}
                     />
                     {/* <button
                       onClick={() => handleRemoveCategory(category.id)}
@@ -465,6 +481,7 @@ function Categories() {
                 placeholder="Sub Category Name"
                 className="w-full focus:outline-none"
                 value={editSubCategoryName}
+                // onLoad={setEditSubCategoryName(selectedSub)}
                 onChange={(e) => setEditSubCategoryName(e.target.value)}
               />
             </div>

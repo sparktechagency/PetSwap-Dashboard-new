@@ -58,7 +58,7 @@ function ManageCategory() {
               } text-sm font-work pb-2 font-semibold border-b-[2px] cursor-pointer`}
               onClick={() => setActiveTab(4)}
             >
-             Keywords
+              Keywords
             </span>
           </div>
 
@@ -68,7 +68,9 @@ function ManageCategory() {
             <BestTimeToVisit />
           ) : activeTab === 3 ? (
             <ActivityLevel />
-          ): <Keywords />}
+          ) : (
+            <Keywords />
+          )}
         </div>
       </div>
     </div>

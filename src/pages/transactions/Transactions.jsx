@@ -17,6 +17,7 @@ function Transactions() {
   console.log("trancsactions", transactions);
 
   console.log("active page: ", activePage);
+
   return (
     <div className="p-6 bg-white rounded-2xl">
       <div>
@@ -194,7 +195,14 @@ function Transactions() {
                     </td>
 
                     <td>{item?.product?.title || "N/A"}</td>
-                    <td>$245{index}</td>
+                    <td>
+                      $
+                      {Number(
+                        item?.amount +
+                          item?.buyer_protection_fee +
+                          item?.platform_fee
+                      ).toFixed(2)}
+                    </td>
                     <td>
                       <button
                         className={`${
