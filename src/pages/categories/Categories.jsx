@@ -444,12 +444,12 @@ function Categories() {
                   key={subCategory.id}
                 >
                   <span>{subCategory.name}</span>
-                  <button
+                  {/* <button
                     onClick={() => handleRemoveSubCategory(subCategory.id)}
                     className="text-red-500"
                   >
                     <DeleteOutlined />
-                  </button>
+                  </button> */}
                 </div>
               ))}
             </div>
