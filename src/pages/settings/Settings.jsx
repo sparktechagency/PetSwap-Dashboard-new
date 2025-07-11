@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PersonalInformation from "./components/PersonalInformation";
 import FAQ from "./components/FAQ";
 import TermsAndConditions from "./components/TermsAndConditions";
 import LegalNotes from "./components/LegalNotes";
 import OurPlatform from "./components/OurPlatform";
 import HelpRequest from "./components/HelpRequest";
-
+import { BASE_URL } from "../../redux/config";
 function Settings() {
   const [activeScreen, setActiveScreen] = useState(0);
+  const [me,setMe] = useState(null)
+
+  useEffect(() => {
+    async function getMe() {
+    const call = await fetch(`${BASE_URL}/profile`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    });
+      const res = await call.json()
+      setMe(res.data)
+      console.log(res.data);
+      
+    }
+    getMe()
+   
+  }, []);
+  
   return (
     <div className="p-6 bg-white rounded-2xl">
       <div className="flex flex-row items-center justify-between">
@@ -90,7 +109,7 @@ function Settings() {
       </div>
 
       {activeScreen === 0 ? (
-        <PersonalInformation />
+        <PersonalInformation/>
       ) : activeScreen === 1 ? (
         <FAQ />
       ) : activeScreen === 2 ? (

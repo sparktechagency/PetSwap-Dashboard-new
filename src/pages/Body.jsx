@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Menu, Modal } from "antd";
 import avatar from "../assets/images//user.png";
 import Dashboard from "./dashboard/Dashboard";
@@ -25,13 +25,30 @@ import Categories from "./categories/Categories";
 import Settings from "./settings/Settings";
 import { useNavigate } from "react-router-dom";
 import { useCheckTokenQuery, useLogoutMutation } from "../redux/api/ApiSlice";
-
+import { BASE_URL } from "../redux/config";
 const { Header, Content, Sider } = Layout;
 
 const Body = () => {
   const [selectedTitle, setSelectedTitle] = useState("Dashboard");
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+  const [me,setMe] = useState(null)
   const navigate = useNavigate();
+
+    useEffect(() => {
+      async function getMe() {
+      const call = await fetch(`${BASE_URL}/profile`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+        const res = await call.json()
+        setMe(res.data)
+        
+      }
+      getMe()
+     
+    }, []);
 
   const items = [
     {
@@ -204,10 +221,10 @@ const Body = () => {
         </div>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-2" role="menuitem">
-            <img src={avatar} alt="avatar" className="w-10 h-10 rounded-2xl" />
+            <img src={me?.avatar??avatar} alt="avatar" className="w-10 h-10 rounded-2xl" />
             <div>
               <h1 className="text-secondaryTitle text-sm font-work font-bold">
-                Elina
+                {me?.name}
               </h1>
             </div>
           </div>
@@ -266,7 +283,7 @@ const Body = () => {
       <Layout className="bg-offBg w-[50%]">
         <Header className="bg-offBg p-0 ml-4 pt-4 flex-row flex items-center justify-between mr-4">
           <h1 className="text-gray70 text-4xl font-work font-semibold">
-            Hello, Elina 👋🏼
+            Hello, {me?.name} 👋🏼
           </h1>
           <svg
             width="47"

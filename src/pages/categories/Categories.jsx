@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { IconEdit } from "../../assets/icons/Icons";
 import { Upload, Button, Image, message, Modal } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
-
+import {BASE_URL} from "../../redux/config"
 function Categories() {
   const [openAddCategoryModal, setOpenAddCategoryModal] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
@@ -20,7 +20,7 @@ function Categories() {
   const [selectedSub, setSelectedSub] = useState(null);
   const token = localStorage.getItem("authToken");
   async function getData() {
-    const call = await fetch("http://182.252.68.227:8001/api/category", {
+    const call = await fetch(`${BASE_URL}/category`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

@@ -1,13 +1,13 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Modal, notification, Upload } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IconEmail, IconUser } from "../../../assets/icons/Icons";
 import {
   useUpdatePasswordMutation,
   useUpdateProfileMutation,
 } from "../../../redux/api/ApiSlice";
 import { use } from "react";
-
+import { BASE_URL } from "../../../redux/config";
 function PersonalInformation() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -21,6 +21,27 @@ function PersonalInformation() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
+  const [email,setEmail] = useState("")
+  const [me,setMe] = useState(null)
+
+  useEffect(() => {
+    async function getMe() {
+    const call = await fetch(`${BASE_URL}/profile`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    });
+      const res = await call.json()
+      setMe(res.data)
+      setName(res.data.name)
+      setEmail(res.data.email)
+      console.log(res.data.name);
+      
+    }
+    getMe()
+   
+  }, []);
 
   const handleOk = () => {
     setChangePasswordModalVisible(false);
@@ -108,6 +129,7 @@ function PersonalInformation() {
               type="text"
               placeholder="Full Name"
               className={`focus:outline-none p-4 w-full`}
+              value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
@@ -119,7 +141,8 @@ function PersonalInformation() {
               type="text"
               placeholder="Email"
               className={`focus:outline-none p-4 w-full`}
-              disabled
+              value={email}
+              readOnly
             />
           </div>
           <button

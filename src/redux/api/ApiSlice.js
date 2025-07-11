@@ -1,10 +1,11 @@
 // features/api/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL } from "../config";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://182.252.68.227:8001/api",
+    baseUrl: BASE_URL,
     prepareHeaders: async (headers) => {
       headers.set("Content-Type", "application/json");
       headers.set("Accept", "application/json");
