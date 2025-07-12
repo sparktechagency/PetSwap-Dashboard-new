@@ -117,6 +117,11 @@ function Categories() {
 
   // Submit the new category
   const handleAddCategory = async () => {
+
+    if (!imageUrl) {
+      message.error("Please enter a category icon")
+      return;
+    }
     if (categoryName.trim() === "") {
       message.error("Category name cannot be empty.");
       return;
@@ -157,7 +162,7 @@ function Categories() {
       formData.append("_method", "PUT");
 
       const call = await fetch(
-        `http://182.252.68.227:8001/api/category/${categories[targetCat].id}`,
+        `${BASE_URL}/category/${categories[targetCat].id}`,
         {
           method: "POST",
           headers: {
@@ -180,7 +185,7 @@ function Categories() {
       getData(); // Refresh the data
       setOpenAddCategoryModal(false);
     } else {
-      const call = await fetch(`http://182.252.68.227:8001/api/category`, {
+      const call = await fetch(`${BASE_URL}/category`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -198,9 +203,8 @@ function Categories() {
 
       setOpenAddCategoryModal(false); // Close modal
       message.success("Category added successfully!");
-      getData(); // Refresh the data
+      getData();
     }
-
     // Reset form
     setImageUrl(null);
     setCategoryName("");
@@ -218,7 +222,7 @@ function Categories() {
 
     try {
       const call = await fetch(
-        `http://182.252.68.227:8001/api/category/${deleteId}`,
+        `${BASE_URL}/category/${deleteId}`,
         {
           method: "DELETE",
           headers: {
