@@ -88,7 +88,7 @@ function Categories() {
   const handleSaveEditSubCategory = async () => {
     try {
       const call = await fetch(
-        `http://182.252.68.227:8001/api/subcategory/${selectedSub?.id}`,
+        `${BASE_URL}/subcategory/${selectedSub?.id}`,
         {
           method: "POST",
           headers: {
