@@ -206,10 +206,22 @@ function Transactions() {
                     <td>
                       <button
                         className={`${
-                          item?.status === "Complete"
-                            ? "bg-[#dff8e1]"
-                            : "bg-[#ffe9e9]"
-                        } px-2 py-1 rounded-xl capitalize`}
+                          item?.status === "Canceled"
+                            ? "bg-[#F3F0F0]"
+                            : item?.status === "Approved"
+                            ? "bg-[#E0F7F1]"
+                            : item?.status === "Pending"
+                            ? "bg-[#FFF9DB]"
+                            : item?.status === "On Process"
+                            ? "bg-[#DCEEFF]"
+                            : item?.status === "Received"
+                            ? "bg-[#F1E6FF]"
+                            : item?.status === "Completed"
+                            ? "bg-[#DFF8E1]"
+                            : item?.status === "Failed"
+                            ? "bg-[#FFE9E9]"
+                            : ""
+                        } px-2 py-1 rounded-xl`}
                       >
                         {item?.status || "N/A"}
                       </button>
