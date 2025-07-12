@@ -146,21 +146,32 @@ function ProductListing() {
                         </h1>
                       </div>
                     </td>
-                    <td>{item?.brand || "N/A"}</td>
                     <td>{item?.price || "N/A"}</td>
+                    <td>{item?.brand || "N/A"}</td>
                     <td>{item?.condition || "N/A"}</td>
                     <td>
                       <button
                         className={`${
                           item?.status === "Canceled"
-                            ? "bg-[#ffe9e9]"
+                            ? "bg-[#F3F0F0]"
                             : item?.status === "Approved"
-                            ? "bg-[#dff8e1]"
-                            : "bg-[#f3f0f0]"
+                            ? "bg-[#E0F7F1]"
+                            : item?.status === "Pending"
+                            ? "bg-[#FFF9DB]"
+                            : item?.status === "On Process"
+                            ? "bg-[#DCEEFF]"
+                            : item?.status === "Received"
+                            ? "bg-[#F1E6FF]"
+                            : item?.status === "Completed"
+                            ? "bg-[#DFF8E1]"
+                            : item?.status === "Failed"
+                            ? "bg-[#FFE9E9]"
+                            : ""
                         } px-2 py-1 rounded-xl`}
                       >
                         {item?.status || "N/A"}
                       </button>
+
                     </td>
                     <td>
                       <div className="flex flex-row items-center gap-6">
