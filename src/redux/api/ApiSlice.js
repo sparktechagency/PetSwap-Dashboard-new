@@ -228,6 +228,7 @@ export const apiSlice = createApi({
           body: data,
         };
       },
+      invalidatesTags:["faq"]
     }),
 
     // get faq

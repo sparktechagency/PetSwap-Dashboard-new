@@ -73,7 +73,18 @@ function PersonalInformation() {
     e.preventDefault();
     try {
       const response = await updateProfile({ name });
-      console.log("Profile updated successfully:", response.data);
+
+      if (response?.data?.status === true) {
+        api.success({
+          message: "Our Platform updated successfully",
+          placement: "top",
+        });
+      } else {
+        api.error({
+          message: response?.data?.message || "Failed to update content",
+          placement: "top",
+        });
+      }
     } catch (err) {
       console.error(
         "Error updating profile:",
