@@ -14,7 +14,7 @@ function FAQ() {
 
   // rtk query hooks
   const [addFaq] = useAddFaqMutation();
-  const { data: faqs } = useGetFaqQuery({});
+  const { data: faqs, refetch } = useGetFaqQuery({});
   const [deleteFaq] = useDeleteFaqMutation();
 
   const addNewFaq = async (e) => {
@@ -28,6 +28,7 @@ function FAQ() {
           message: "FAQ added successfully",
           placement: "top",
         });
+        refetch()
       } else {
         api.error({
           message: response?.data?.message,
