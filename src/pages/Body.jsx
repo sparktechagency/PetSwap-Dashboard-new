@@ -26,29 +26,29 @@ import Settings from "./settings/Settings";
 import { useNavigate } from "react-router-dom";
 import { useCheckTokenQuery, useLogoutMutation } from "../redux/api/ApiSlice";
 import { BASE_URL } from "../redux/config";
+import Sliders from "./sliders/Sliders";
+import { OneToOneOutlined } from "@ant-design/icons";
 const { Header, Content, Sider } = Layout;
 
 const Body = () => {
   const [selectedTitle, setSelectedTitle] = useState("Dashboard");
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
-  const [me,setMe] = useState(null)
+  const [me, setMe] = useState(null);
   const navigate = useNavigate();
 
-    useEffect(() => {
-      async function getMe() {
+  useEffect(() => {
+    async function getMe() {
       const call = await fetch(`${BASE_URL}/profile`, {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-        const res = await call.json()
-        setMe(res.data)
-        
-      }
-      getMe()
-     
-    }, []);
+      const res = await call.json();
+      setMe(res.data);
+    }
+    getMe();
+  }, []);
 
   const items = [
     {
@@ -109,6 +109,26 @@ const Body = () => {
           <div dangerouslySetInnerHTML={{ __html: IconActiveProductListing }} />
         ) : (
           <div dangerouslySetInnerHTML={{ __html: IconProductListing }} />
+        ),
+    },
+    {
+      label: (
+        <span
+          className={`${
+            selectedTitle?.props?.children === "Manage Sliders"
+              ? "text-primary"
+              : "text-title"
+          } text-sm font-work font-semibold`}
+        >
+          Manage Sliders
+        </span>
+      ),
+      key: "9",
+      icon:
+        selectedTitle?.props?.children === "Manage Sliders" ? (
+          <OneToOneOutlined style={{ fontSize: "22px", color: "#064145" }} />
+        ) : (
+          <OneToOneOutlined style={{ fontSize: "22px", color: "#a9a9a9" }} />
         ),
     },
     {
@@ -221,7 +241,11 @@ const Body = () => {
         </div>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-2" role="menuitem">
-            <img src={me?.avatar??avatar} alt="avatar" className="w-10 h-10 rounded-2xl" />
+            <img
+              src={me?.avatar ?? avatar}
+              alt="avatar"
+              className="w-10 h-10 rounded-2xl"
+            />
             <div>
               <h1 className="text-secondaryTitle text-sm font-work font-bold">
                 {me?.name}
@@ -309,6 +333,8 @@ const Body = () => {
             <ManageUsers />
           ) : selectedTitle?.props?.children === "Product Listing" ? (
             <ProductListing />
+          ) : selectedTitle?.props?.children === "Manage Sliders" ? (
+            <Sliders />
           ) : selectedTitle?.props?.children === "Transactions" ? (
             <Transactions />
           ) : selectedTitle?.props?.children === "Categories" ? (

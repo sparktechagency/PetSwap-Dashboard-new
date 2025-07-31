@@ -7,16 +7,21 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     prepareHeaders: async (headers) => {
-      headers.set("Content-Type", "application/json");
-      headers.set("Accept", "application/json");
       const token = localStorage.getItem("authToken");
+
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
-  tagTypes: ["Post", "deleteProduct", "updateProductStatus", "Category"],
+  tagTypes: [
+    "Post",
+    "deleteProduct",
+    "updateProductStatus",
+    "Category",
+    "slider",
+  ],
 
   endpoints: (builder) => ({
     // login endpoint
@@ -228,7 +233,7 @@ export const apiSlice = createApi({
           body: data,
         };
       },
-      invalidatesTags:["faq"]
+      invalidatesTags: ["faq"],
     }),
 
     // get faq
@@ -317,6 +322,39 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Category"],
     }),
+
+    getSlider: builder.query({
+      query: () => ({
+        url: `/slider`,
+      }),
+      provideTags: ["slider"],
+    }),
+    createSlider: builder.mutation({
+      query: (formData) => {
+        return {
+          url: `/slider`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["slider"],
+    }),
+
+    updateSlider: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/slider/${id}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["slider"],
+    }),
+    deleteSlider: builder.mutation({
+      query: ({ id }) => ({
+        url: `/slider/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["slider"],
+    }),
   }),
 });
 
@@ -349,4 +387,8 @@ export const {
   useAddCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
+  useCreateSliderMutation,
+  useUpdateSliderMutation,
+  useDeleteSliderMutation,
+  useGetSliderQuery,
 } = apiSlice;
