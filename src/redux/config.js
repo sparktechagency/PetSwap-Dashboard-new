@@ -1,1 +1,1 @@
-export const BASE_URL = "http://103.186.20.114:8001/api";
+export const BASE_URL = "https://pawsandbuy.com/api";
